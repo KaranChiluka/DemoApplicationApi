@@ -38,6 +38,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                         new InvalidCredentialsException(
                                 String.format("The requested user %s not found", loginDto.getUsername()));
         UserDetailsBO userDetailsBO = userDetailsRepository.findByUsername(loginDto.getUsername()).orElseThrow(expSupplier);
+        boolean isValid = encoder.matches(loginDto.getPassword(), userDetailsBO.getPassword());
+        if(!isValid) throw new InvalidCredentialsException("Invalid Credentials");
         return jwtTokenProvider.tokenGeneration(userDetailsBO.getUsername());
+    }
+    @Override
+    public UserDetailsBO authenticateToken(String token){
+        UserDetailsBO tokenValidation = jwtTokenProvider.validateToken(token);
+        return tokenValidation;
     }
 }

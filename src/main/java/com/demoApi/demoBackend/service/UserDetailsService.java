@@ -8,4 +8,7 @@ public interface UserDetailsService {
     UserDetailsBO saveUser(SignupDto signupDto);
 
     String tokenGeneration(LoginDto loginDto);
+
+    UserDetailsBO authenticateToken(String token);
+
 }
