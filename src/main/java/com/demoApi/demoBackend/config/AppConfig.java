@@ -2,6 +2,8 @@ package com.demoApi.demoBackend.config;
 
 import org.dozer.DozerBeanMapper;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -25,6 +27,11 @@ public class AppConfig {
         DozerBeanMapper mapper = new DozerBeanMapper();
         mapper.setMappingFiles(Arrays.asList("dozer-config.xml"));
         return mapper;
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager();
     }
 
 //    @Bean
