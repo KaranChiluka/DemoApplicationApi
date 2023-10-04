@@ -6,6 +6,7 @@ import com.demoApi.demoBackend.repository.UserDetailsRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.User;
@@ -37,12 +38,20 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
     public UserDetailsBO validateToken(String token){
         String username = getUsernameFromJwt(token);
         UserDetailsBO userDetailsBO = userDetailsRepository.findByUsername(username)
                 .orElseThrow();
-        boolean isExist = (username.matches(userDetailsBO.getUsername()) && !tokenExpiration(token));
-        if(isExist){
+        boolean isValid = (username.equals(userDetailsBO.getUsername()) && !tokenExpiration(token));
+        if(isValid){
             return userDetailsBO;
         }
         return null;
