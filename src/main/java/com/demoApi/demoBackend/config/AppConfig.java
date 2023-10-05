@@ -1,23 +1,15 @@
 package com.demoApi.demoBackend.config;
 
-import com.demoApi.demoBackend.util.CustomUserDetailsServices;
-import com.demoApi.demoBackend.util.JwtTokenProvider;
 import org.dozer.DozerBeanMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
@@ -25,43 +17,10 @@ import java.util.List;
 @EnableWebSecurity
 public class AppConfig {
     @Bean
-    public DozerBeanMapper mapper() {
-        DozerBeanMapper mapper = new DozerBeanMapper();
-        mapper.setMappingFiles(List.of("dozer-config.xml"));
-        return mapper;
+    BCryptPasswordEncoder encoder(){
+        return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public UserDetails userDetails(){
-//        return CustomUserDetailsServices
-//    }
-
-    @Bean
-    public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager();
-    }
-
-    @Deprecated
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,JwtTokenProvider jwtTokenProvider) throws Exception{
-        http.csrf()
-                .disable()
-                .authorizeRequests()
-                .requestMatchers("/actuator/**","/security/login")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-//                .httpBasic();
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new JwtAuthorizationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService(){
-        return new CustomUserDetailsServices();
-    }
 
     @Bean
     public FilterRegistrationBean<LogFilter> loggingFilter() {
@@ -77,6 +36,23 @@ public class AppConfig {
         registrationBean.addUrlPatterns("/*");
 
         return registrationBean;
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager();
+    }
+
+    @Bean
+    public DozerBeanMapper mapper() {
+        DozerBeanMapper mapper = new DozerBeanMapper();
+        mapper.setMappingFiles(List.of("dozer-config.xml"));
+        return mapper;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)throws Exception{
+        return configuration.getAuthenticationManager();
     }
 
 }

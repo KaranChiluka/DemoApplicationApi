@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -27,7 +28,8 @@ public class JwtTokenProvider {
     @Autowired
     UserDetailsRepository userDetailsRepository;
 
-    public String tokenGeneration(String username){
+    public String tokenGeneration(UserDetails userDetails){
+        String username = userDetails.getUsername();
         Date current = new Date();
         Date tokenExpiration = new Date(current.getTime() + jwtExpiration);
         return Jwts.builder()
@@ -38,6 +40,10 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String getUsernameFromToken(String token) {
+        return claims(token, Claims::getSubject);
+    }
+
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -46,15 +52,9 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public UserDetailsBO validateToken(String token){
+    public boolean validateToken(String token,UserDetails userDetails){
         String username = getUsernameFromJwt(token);
-        UserDetailsBO userDetailsBO = userDetailsRepository.findByUsername(username)
-                .orElseThrow();
-        boolean isValid = (username.equals(userDetailsBO.getUsername()) && !tokenExpiration(token));
-        if(isValid){
-            return userDetailsBO;
-        }
-        return null;
+        return (username.equals(userDetails.getUsername())) && !tokenExpiration(token);
     }
 
     public boolean tokenExpiration(String token){
