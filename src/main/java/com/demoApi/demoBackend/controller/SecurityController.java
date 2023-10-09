@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:8080")
 @RequestMapping("/security")
+//@CrossOrigin(origins = {"*"},methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.DELETE,RequestMethod.OPTIONS})
 public class SecurityController {
     @Autowired
     UserDetailsService userDetailsService;
@@ -62,8 +64,8 @@ public class SecurityController {
     public UserDetailsBO CreateUser(@RequestBody SignupDto signupDto){
         return userService.createUser(signupDto);
     }
-    @GetMapping("/UserDetails")
-    public List<UserDetailsBO> getAllUsers(@RequestHeader("Authorization") String token){
+    @GetMapping("/users")
+    public List<UserDetailsBO> getAllUsers(){
         return userService.getUsers();
     }
 }

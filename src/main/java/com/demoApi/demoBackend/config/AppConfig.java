@@ -22,21 +22,21 @@ public class AppConfig {
     }
 
 
-    @Bean
-    public FilterRegistrationBean<LogFilter> loggingFilter() {
-        FilterRegistrationBean<LogFilter> registrationBean = new FilterRegistrationBean<>();
-
-        LogFilter logFilter = new LogFilter();
-        logFilter.setIncludeQueryString(true);
-        logFilter.setIncludePayload(true);
-        logFilter.setIncludeHeaders(true);
-        logFilter.setMaxPayloadLength(10000);
-
-        registrationBean.setFilter(logFilter);
-        registrationBean.addUrlPatterns("/*");
-
-        return registrationBean;
-    }
+//    @Bean
+//    public FilterRegistrationBean<LogFilter> loggingFilter() {
+//        FilterRegistrationBean<LogFilter> registrationBean = new FilterRegistrationBean<>();
+//
+//        LogFilter logFilter = new LogFilter();
+//        logFilter.setIncludeQueryString(true);
+//        logFilter.setIncludePayload(true);
+//        logFilter.setIncludeHeaders(true);
+//        logFilter.setMaxPayloadLength(10000);
+//
+//        registrationBean.setFilter(logFilter);
+//        registrationBean.addUrlPatterns("/*");
+//
+//        return registrationBean;
+//    }
 
     @Bean
     public CacheManager cacheManager() {
