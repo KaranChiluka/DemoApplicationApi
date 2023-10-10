@@ -3,9 +3,9 @@ package com.demoApi.demoBackend.util;
 import com.demoApi.demoBackend.entity.UserDetailsBO;
 import com.demoApi.demoBackend.exception.InvalidCredentialsException;
 import com.demoApi.demoBackend.repository.UserDetailsRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,11 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 @Component
@@ -25,54 +29,49 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
-    @Autowired
-    UserDetailsRepository userDetailsRepository;
+    public String tokenGeneration(String username){
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims,username);
+    }
 
-    public String tokenGeneration(UserDetails userDetails){
-        String username = userDetails.getUsername();
+    public String createToken(Map<String,Object> claims,String username){
         Date current = new Date();
         Date tokenExpiration = new Date(current.getTime() + jwtExpiration);
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(current)
                 .setExpiration(tokenExpiration)
-                .signWith(SignatureAlgorithm.HS512,jwtSecret)
+                .signWith(getSignKey(),SignatureAlgorithm.HS512)
                 .compact();
     }
-
-    public String getUsernameFromToken(String token) {
-        return claims(token, Claims::getSubject);
+    private Key getSignKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
-
-    public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
-
     public boolean validateToken(String token,UserDetails userDetails){
         String username = getUsernameFromJwt(token);
         return (username.equals(userDetails.getUsername())) && !tokenExpiration(token);
     }
-
     public boolean tokenExpiration(String token){
         return getTokenExpiration(token).before(new Date());
     }
     public Date getTokenExpiration(String token){
         return claims(token,Claims::getExpiration);
     }
-
     public String getUsernameFromJwt(String token){
         return claims(token,Claims::getSubject);
     }
-
     public <T> T claims(String token, Function<Claims,T> claimsResolver){
-        Claims claims = Jwts.parser()
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+    public Claims extractAllClaims(String token){
+        return Jwts
+                .parserBuilder()
                 .setSigningKey(jwtSecret)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claimsResolver.apply(claims);
     }
 }

@@ -12,6 +12,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -37,12 +40,10 @@ public class SecurityConfig {
                 .authenticated()
                 .and()
                 .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//                .addFilterAfter(jwtAuthorizationFilter,UsernamePasswordAuthenticationFilter.class);
-
-//        http.authenticationProvider(daoAuthenticationProvider());
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -54,4 +55,15 @@ public class SecurityConfig {
 
         return  daoAuthenticationProvider;
     }
+
+//    @Bean
+//    public CorsFilter corsFilter() {
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.addAllowedOrigin("http://localhost:3000");
+//        config.addAllowedMethod("*");
+//        config.addAllowedHeader("*");
+//        source.registerCorsConfiguration("/**", config);
+//        return new CorsFilter(source);
+//    }
 }
