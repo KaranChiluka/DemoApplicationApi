@@ -31,10 +31,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.csrf()
                 .disable()
-//                .cors()
-//                .and()
+                .cors()
+                .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/actuator/**","/security/login","/security/signup")
+                .requestMatchers("/actuator/**","/security/login","/security/signup","/v2/api-docs",
+                        "/v3/api-docs","/swagger-resources/**",
+                        "/swagger-ui/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

@@ -26,9 +26,6 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
-
     public String tokenGeneration(String username){
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims,username);
@@ -36,7 +33,7 @@ public class JwtTokenProvider {
 
     public String createToken(Map<String,Object> claims,String username){
         Date current = new Date();
-        Date tokenExpiration = new Date(current.getTime() + jwtExpiration);
+        Date tokenExpiration = new Date(current.getTime() + 1000 * 60 * 30);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
