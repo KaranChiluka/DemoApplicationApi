@@ -33,6 +33,9 @@ public class SecurityConfig {
                 .disable()
                 .cors()
                 .and()
+                .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeHttpRequests()
                 .requestMatchers("/actuator/**","/security/login","/security/signup","/v2/api-docs",
                         "/v3/api-docs","/swagger-resources/**",
@@ -40,9 +43,6 @@ public class SecurityConfig {
                 .permitAll()
                 .anyRequest()
                 .authenticated()
-                .and()
-                .exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
 //                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class);

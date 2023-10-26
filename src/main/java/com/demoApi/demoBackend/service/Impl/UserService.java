@@ -8,4 +8,5 @@ import java.util.List;
 public interface UserService {
     List<UserDetailsBO> getUsers();
     UserDetailsBO createUser(SignupDto signupDto);
+    UserDetailsBO getCurrentUser(String token);
 }

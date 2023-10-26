@@ -4,6 +4,7 @@ import com.demoApi.demoBackend.dto.SignupDto;
 import com.demoApi.demoBackend.entity.UserDetailsBO;
 import com.demoApi.demoBackend.repository.UserDetailsRepository;
 import com.demoApi.demoBackend.service.Impl.UserService;
+import com.demoApi.demoBackend.util.JwtTokenProvider;
 import org.dozer.DozerBeanMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,6 +21,8 @@ public class UserServiceImpl implements UserService {
     BCryptPasswordEncoder encoder;
     @Autowired
     DozerBeanMapper mapper;
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
 
     @Override
     public List<UserDetailsBO> getUsers() {
@@ -31,5 +34,10 @@ public class UserServiceImpl implements UserService {
         signupDto.setPassword(encoder.encode(signupDto.getPassword()));
         UserDetailsBO userDetailsBO = mapper.map(signupDto, UserDetailsBO.class);
         return userDetailsRepository.save(userDetailsBO);
+    }
+    @Override
+    public UserDetailsBO getCurrentUser(String token){
+        String username = jwtTokenProvider.getUsernameFromJwt(token);
+        return userDetailsRepository.findByEmail(username).get();
     }
 }
