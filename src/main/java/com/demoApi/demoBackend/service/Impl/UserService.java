@@ -9,4 +9,5 @@ public interface UserService {
     List<UserDetailsBO> getUsers();
     UserDetailsBO createUser(SignupDto signupDto);
     UserDetailsBO getCurrentUser(String token);
+    SignupDto updateUser(SignupDto signupDto);
 }

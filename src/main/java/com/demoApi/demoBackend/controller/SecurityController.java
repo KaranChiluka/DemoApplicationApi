@@ -56,10 +56,10 @@ public class SecurityController {
         }
 
     }
-    @PostMapping("/signup")
-    public UserDetailsBO CreateUser(@RequestBody SignupDto signupDto){
-        return userService.createUser(signupDto);
-    }
+//    @PostMapping("/signup")
+//    public UserDetailsBO CreateUser(@RequestBody SignupDto signupDto){
+//        return userService.createUser(signupDto);
+//    }
     @GetMapping("/all")
     public List<UserDetailsBO> getAllUsers(){
         return userService.getUsers();

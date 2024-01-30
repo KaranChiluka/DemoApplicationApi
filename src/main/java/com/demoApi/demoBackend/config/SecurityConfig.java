@@ -5,7 +5,6 @@ import com.demoApi.demoBackend.util.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,9 +36,9 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/actuator/**","/security/login","/security/signup","/v2/api-docs",
+                .requestMatchers("/actuator/**","/security/login","/user/signup","/v2/api-docs",
                         "/v3/api-docs","/swagger-resources/**",
-                        "/swagger-ui/**")
+                        "/swagger-ui/**","/user/uploadFiles")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

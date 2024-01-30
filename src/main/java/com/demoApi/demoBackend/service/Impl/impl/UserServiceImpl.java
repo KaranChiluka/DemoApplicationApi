@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
     DozerBeanMapper mapper;
     @Autowired
     JwtTokenProvider jwtTokenProvider;
+    private static final String ERROR_MESSAGE = "The requested user with id %s is not found";
 
     @Override
     public List<UserDetailsBO> getUsers() {
@@ -39,5 +41,13 @@ public class UserServiceImpl implements UserService {
     public UserDetailsBO getCurrentUser(String token){
         String username = jwtTokenProvider.getUsernameFromJwt(token);
         return userDetailsRepository.findByEmail(username).get();
+    }
+    @Override
+    public SignupDto updateUser(SignupDto signupDto){
+        UserDetailsBO userDetailsBO = userDetailsRepository.findById(signupDto.getId())
+                  .orElseThrow(() -> new NoSuchElementException(String.format(ERROR_MESSAGE, signupDto.getId())));
+        mapper.map(signupDto,userDetailsBO);
+        userDetailsRepository.save(userDetailsBO);
+        return mapper.map(userDetailsBO, SignupDto.class);
     }
 }
